@@ -16,7 +16,10 @@ class Instance:
         self.goal = None
         
     def set_goal(self, state):
-        self.goal = state
+        if state.info == '.':
+            self.goal = state
+        else:
+            raise ValueError("goal state is not reachable")
     
     def is_goal(self, state):
         return state.label == self.goal.label
