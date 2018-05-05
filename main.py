@@ -1,7 +1,7 @@
 import sys
 from search import *
 
-def create_instance(width, height, grid, goal):
+def create_instance(width, height, grid):
     instance = Instance()
     
     for i in range(0, height):
@@ -13,12 +13,12 @@ def create_instance(width, height, grid, goal):
             for x in range(-1 if i > 0 else 0, 2 if i < height - 1 else 0):
                 for y in range(-1 if j > 0 else 0, 2 if j < width - 1 else 0):
                     instance.add_successor(i, j, i + x, j + y)
-                    
-    instance.set_goal(instance.states[goal])
     
     return instance
 
-def solve(instance, algorithm, heuristic, start):
+def solve(instance, algorithm, heuristic, start, goal):
+    instance.set_goal(instance.states[goal])
+    
     if algorithm == 'a-star':
         if heuristic is None:
             usage_error("heuristic is mandatory for a-star")
@@ -65,9 +65,9 @@ def main():
     width = int(data[2].split()[1])
     grid = list(map(lambda l: list(l.rstrip()), data[4:]))
     
-    instance = create_instance(width, height, grid, (x_g, y_g))
+    instance = create_instance(width, height, grid)
     
-    solution = solve(instance, algorithm, heuristic, (x_s, y_s))
+    solution = solve(instance, algorithm, heuristic, (x_s, y_s), (x_g, y_g))
     
 if __name__ == "__main__":
     main()
