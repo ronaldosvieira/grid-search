@@ -44,26 +44,30 @@ def usage_error(error = None):
     print("usage: %s map x_s y_s x_g y_g algorithm heuristic?" % raw_data[0])
     sys.exit(1)
 
-raw_data = sys.argv
-
-if len(raw_data) not in [7, 8]:
-    usage_error()
-
-map_name, algorithm = raw_data[1], raw_data[6]
-x_s, y_s, x_g, y_g = map(int, raw_data[2:6])
-
-try:
-    heuristic = raw_data[7]
-except:
-    heuristic = None
-
-with open("maps/" + map_name, 'r') as file:
-    data = file.readlines()
+def main():
+    raw_data = sys.argv
     
-height = int(data[1].split()[1])
-width = int(data[2].split()[1])
-grid = list(map(lambda l: list(l.rstrip()), data[4:]))
-
-instance = create_instance(width, height, grid, (x_g, y_g))
-
-solution = solve(instance, algorithm, heuristic, (x_s, y_s))
+    if len(raw_data) not in [7, 8]:
+        usage_error()
+    
+    map_name, algorithm = raw_data[1], raw_data[6]
+    x_s, y_s, x_g, y_g = map(int, raw_data[2:6])
+    
+    try:
+        heuristic = raw_data[7]
+    except:
+        heuristic = None
+    
+    with open("maps/" + map_name, 'r') as file:
+        data = file.readlines()
+        
+    height = int(data[1].split()[1])
+    width = int(data[2].split()[1])
+    grid = list(map(lambda l: list(l.rstrip()), data[4:]))
+    
+    instance = create_instance(width, height, grid, (x_g, y_g))
+    
+    solution = solve(instance, algorithm, heuristic, (x_s, y_s))
+    
+if __name__ == "__main__":
+    main()
