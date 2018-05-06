@@ -6,13 +6,14 @@ def create_instance(width, height, grid):
     
     for i in range(0, height):
         for j in range(0, width):
-            instance.add_state(j, i, grid[i][j] == '.')
+            if grid[i][j] == '.':
+                instance.add_state(j, i, True)
             
     for i in range(0, height):
         for j in range(0, width):
             for x in range(-1 if i > 0 else 0, 2 if i < height - 1 else 0):
                 for y in range(-1 if j > 0 else 0, 2 if j < width - 1 else 0):
-                    if not (x == 0 and y == 0):
+                    if not (x == 0 and y == 0) and grid[i][j] == '.' and grid[i + x][j + y] == '.':
                         instance.add_successor(j, i, j + y, i + x, min(1.5, abs(x) + abs(y)))
     
     return instance
