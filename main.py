@@ -11,9 +11,14 @@ def create_instance(width, height, grid):
             
     for i in range(0, height):
         for j in range(0, width):
-            for x in range(-1 if i > 0 else 0, 2 if i < height - 1 else 0):
-                for y in range(-1 if j > 0 else 0, 2 if j < width - 1 else 0):
-                    if not (x == 0 and y == 0) and grid[i][j] == '.' and grid[i + x][j + y] == '.':
+            x_s, x_f = -1 if i > 0 else 0, 2 if i < height - 1 else 0
+            y_s, y_f = -1 if j > 0 else 0, 2 if j < width - 1 else 0
+            
+            for x in range(x_s, x_f):
+                for y in range(y_s, y_f):
+                    if (not (x == 0 and y == 0) and 
+                            grid[i][j] == '.' and grid[i + x][j + y] == '.' and 
+                            grid[i][j + y] == '.' and grid[i + x][j] == '.'):
                         instance.add_successor(j, i, j + y, i + x, min(1.5, abs(x) + abs(y)))
     
     return instance
