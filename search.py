@@ -34,10 +34,11 @@ class Instance:
         self.states[(i, j)].add_successor((self.states[(p, q)], cost))
 
 class Node:
-    def __init__(self, state, pred = None, cost = 0):
+    def __init__(self, state, pred = None, cost = 0, depth = 0):
         self.state = state
         self.pred = pred
         self.cost = cost
+        self.depth = depth
         
     def __lt__(self, other):
         return self.cost < other.cost
@@ -123,7 +124,7 @@ def search(instance, start, open_list):
             best_path[current.state.label] = current.cost
             
             open_list.extend(filter(lambda n: n.state not in closed_list or n.cost < best_path[n.state.label], 
-                                    map(lambda s: Node(s[0], current, current.cost + s[1]), 
+                                    map(lambda s: Node(s[0], current, current.cost + s[1], current.depth + 1), 
                                         current.state.successors)))
         
     raise SolutionNotFoundError()
