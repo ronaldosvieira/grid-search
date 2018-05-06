@@ -8,7 +8,7 @@ class State:
         self.successors.append(state)
         
     def __hash__(self):
-        return self.label
+        return int(str(self.label[0]) + str(self.label[1]))
         
 class Instance:
     def __init__(self):
@@ -16,7 +16,7 @@ class Instance:
         self.goal = None
         
     def set_goal(self, state):
-        if state.info == '.':
+        if state.info:
             self.goal = state
         else:
             raise ValueError("goal state is not reachable")

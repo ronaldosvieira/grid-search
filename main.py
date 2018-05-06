@@ -22,34 +22,34 @@ def solve(instance, algorithm, heuristic, start, goal):
     
     if algorithm == 'a-star':
         if heuristic is None:
-            usage_error("heuristic is mandatory for a-star")
+            throw_error("heuristic is mandatory for a-star")
             
         if heuristic not in ['manhattan', 'octile']:
-            usage_error("invalid heuristic")
+            throw_error("invalid heuristic")
             
         return None
             
     elif algorithm == 'best-fit':
         return None
     elif algorithm == 'uniform-cost':
-        return None
+        return search(instance, start)
     elif algorithm == 'iterative-deepening':
         return None
     else:
         usage_error("invalid algorithm")
 
-def usage_error(error = None):
+def throw_error(error = None):
     if error is not None:
         print("error: %s" % error)
-    
-    print("usage: %s map x_s y_s x_g y_g algorithm heuristic?" % raw_data[0])
+
     sys.exit(1)
 
 def main():
     raw_data = sys.argv
     
     if len(raw_data) not in [7, 8]:
-        usage_error()
+        print("usage: %s map x_s y_s x_g y_g algorithm heuristic?" % raw_data[0])
+        sys.exit(1)
     
     map_name, algorithm = raw_data[1], raw_data[6]
     x_s, y_s, x_g, y_g = map(int, raw_data[2:6])
@@ -69,6 +69,8 @@ def main():
     instance = create_instance(width, height, grid)
     
     solution = solve(instance, algorithm, heuristic, (x_s, y_s), (x_g, y_g))
+    
+    print(solution)
     
 if __name__ == "__main__":
     main()
