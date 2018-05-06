@@ -72,6 +72,9 @@ class BreadthFirstOpenList:
     def __str__(self):
         return str(list(map(str, self.open_list)))
         
+    def __len__(self):
+        return len(self.open_list)
+        
     def pop(self):
         return self.open_list.popleft()
         
@@ -87,6 +90,9 @@ class UniformCostOpenList:
             
     def __str__(self):
         return str(list(map(str, map(lambda n: n[1], self.open_list))))
+        
+    def __len__(self):
+        return len(self.open_list)
         
     def pop(self):
         return heapq.heappop(self.open_list)[1]
