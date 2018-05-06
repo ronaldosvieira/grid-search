@@ -40,7 +40,17 @@ def solve(instance, algorithm, heuristic, start, goal):
     elif algorithm == 'uniform-cost':
         return search(instance, start, UniformCostOpenList())
     elif algorithm == 'iterative-deepening':
-        return None
+        depth = 0
+        
+        while True:
+            try:
+                return search(instance, start, LimitedDepthFirstOpenList(depth))
+            except SolutionNotFoundError:
+                depth += 1
+                continue
+            except KeyboardInterrupt as ki:
+                print("ids stopped at depth %d" % depth)
+                raise ki
     else:
         throw_error("invalid algorithm")
 
