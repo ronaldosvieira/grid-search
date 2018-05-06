@@ -7,7 +7,7 @@ def create_instance(width, height, grid):
     for i in range(0, height):
         for j in range(0, width):
             if grid[i][j] == '.':
-                instance.add_state(j, i, True)
+                instance.add_state(i, j, True)
             
     for i in range(0, height):
         for j in range(0, width):
@@ -19,7 +19,7 @@ def create_instance(width, height, grid):
                     if (not (x == 0 and y == 0) and 
                             grid[i][j] == '.' and grid[i + x][j + y] == '.' and 
                             grid[i][j + y] == '.' and grid[i + x][j] == '.'):
-                        instance.add_successor(j, i, j + y, i + x, min(1.5, abs(x) + abs(y)))
+                        instance.add_successor(i, j, i + x, j + y, min(1.5, abs(x) + abs(y)))
     
     return instance
 
