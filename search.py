@@ -97,6 +97,7 @@ class UniformCostOpenList:
 
 def search(instance, start, open_list_builder):
     closed_list = set()
+    best_path = {}
     open_list = open_list_builder([Node(instance.states[start])])
     
     while open_list:
@@ -107,6 +108,10 @@ def search(instance, start, open_list_builder):
             
         if current.state not in closed_list:
             closed_list.add(current.state)
-            open_list.extend(map(lambda s: Node(s[0], current, current.cost + s[1]), current.state.successors))
+            best_path[current.state.label] = current.cost
+            
+            open_list.extend(filter(lambda n: n.state not in closed_list or n.cost < best_path[n.state.label], 
+                                    map(lambda s: Node(s[0], current, current.cost + s[1]), 
+                                        current.state.successors)))
         
     raise SolutionNotFoundError()
