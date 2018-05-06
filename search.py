@@ -73,6 +73,26 @@ class InvalidGoalError(Exception):
     def __init__(self, message):
         super().__init__(message)
 
+class ManhattanDistanceHeuristic:
+    def __init__(self, goal):
+        self.goal = goal
+    
+    def get(self, node):
+        dx = abs(node.state.label[0] - self.goal[0])
+        dy = abs(node.state.label[1] - self.goal[1])
+        
+        return dx + dy
+
+class OctileDistanceHeuristic:
+    def __init__(self, goal):
+        self.goal = goal
+        
+    def get(self, node):
+        dx = abs(node.state.label[0] - self.goal[0])
+        dy = abs(node.state.label[1] - self.goal[1])
+        
+        return max(dx, dy) + 0.5 * min(dx, dy)
+
 class BreadthFirstOpenList:
     def __init__(self):
         self.open_list = deque([])
