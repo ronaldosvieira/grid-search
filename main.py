@@ -36,7 +36,7 @@ def solve(instance, algorithm, heuristic, start, goal):
     elif algorithm == 'iterative-deepening':
         return None
     else:
-        usage_error("invalid algorithm")
+        throw_error("invalid algorithm")
 
 def throw_error(error = None):
     if error is not None:
