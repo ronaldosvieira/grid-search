@@ -66,14 +66,17 @@ class SolutionNotFoundError(Exception):
     pass
 
 class BreadthFirstOpenList:
-    def __init__(self, nodes):
-        self.open_list = deque(nodes)
+    def __init__(self):
+        self.open_list = deque([])
         
     def __str__(self):
         return str(list(map(str, self.open_list)))
         
     def __len__(self):
         return len(self.open_list)
+        
+    def init(self, nodes):
+        self.open_list = deque(list(nodes))
         
     def pop(self):
         return self.open_list.popleft()
@@ -82,17 +85,20 @@ class BreadthFirstOpenList:
         self.open_list.extend(nodes)
         
 class UniformCostOpenList:
-    def __init__(self, nodes):
+    def __init__(self):
         self.open_list = []
-        
-        for node in nodes:
-            heapq.heappush(self.open_list, (node.cost, node))
             
     def __str__(self):
         return str(list(map(str, map(lambda n: n[1], self.open_list))))
         
     def __len__(self):
         return len(self.open_list)
+        
+    def init(self, nodes):
+        self.open_list = []
+        
+        for node in nodes:
+            heapq.heappush(self.open_list, (node.cost, node))
         
     def pop(self):
         return heapq.heappop(self.open_list)[1]
@@ -101,10 +107,10 @@ class UniformCostOpenList:
         for node in nodes:
             heapq.heappush(self.open_list, (node.cost, node))
 
-def search(instance, start, open_list_builder):
+def search(instance, start, open_list):
     closed_list = set()
     best_path = {}
-    open_list = open_list_builder([Node(instance.states[start])])
+    open_list.init([Node(instance.states[start])])
     
     while open_list:
         current = open_list.pop()

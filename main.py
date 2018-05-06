@@ -38,7 +38,7 @@ def solve(instance, algorithm, heuristic, start, goal):
     elif algorithm == 'best-fit':
         return None
     elif algorithm == 'uniform-cost':
-        return search(instance, start, BreadthFirstOpenList)
+        return search(instance, start, UniformCostOpenList())
     elif algorithm == 'iterative-deepening':
         return None
     else:
