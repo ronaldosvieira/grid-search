@@ -1,4 +1,5 @@
 from collections import deque
+import heapq
 
 class State:
     def __init__(self, label, info):
@@ -38,6 +39,12 @@ class Node:
         self.pred = pred
         self.cost = cost
         
+    def __lt__(self, other):
+        return self.cost < other.cost
+        
+    def __gt__(self, other):
+        return self.cost > other.cost
+        
     def __str__(self):
         return "<%d %d %g>" % (self.state.label[0], self.state.label[1], self.cost)
 
@@ -70,6 +77,23 @@ class BreadthFirstOpenList:
         
     def extend(self, nodes):
         self.open_list.extend(nodes)
+        
+class UniformCostOpenList:
+    def __init__(self, nodes):
+        self.open_list = []
+        
+        for node in nodes:
+            heapq.heappush(self.open_list, (node.cost, node))
+            
+    def __str__(self):
+        return str(list(map(str, map(lambda n: n[1], self.open_list))))
+        
+    def pop(self):
+        return heapq.heappop(self.open_list)[1]
+        
+    def extend(self, nodes):
+        for node in nodes:
+            heapq.heappush(self.open_list, (node.cost, node))
 
 def search(instance, start, open_list_builder):
     closed_list = set()
