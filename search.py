@@ -53,7 +53,7 @@ class Solution:
         self.steps = []
         i = goal
         
-        while i.pred:
+        while i:
             self.steps.append(i)
             i = i.pred
             
