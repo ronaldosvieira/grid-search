@@ -1,3 +1,5 @@
+from collections import deque
+
 class State:
     def __init__(self, label, info):
         self.label = label
@@ -56,13 +58,25 @@ class Solution:
 class SolutionNotFoundError(Exception):
     pass
 
-def search(instance, start):
+class BreadthFirstOpenList:
+    def __init__(self, nodes):
+        self.open_list = deque(nodes)
+        
+    def __str__(self):
+        return str(list(map(str, self.open_list)))
+        
+    def pop(self):
+        return self.open_list.popleft()
+        
+    def extend(self, nodes):
+        self.open_list.extend(nodes)
+
+def search(instance, start, open_list_builder):
     closed_list = set()
-    open_list = [Node(instance.states[start])]
+    open_list = open_list_builder([Node(instance.states[start])])
     
     while open_list:
-        current = open_list[0]
-        open_list = open_list[1:]
+        current = open_list.pop()
         
         if instance.is_goal(current.state):
             return Solution(current)
