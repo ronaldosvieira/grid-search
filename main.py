@@ -36,7 +36,7 @@ def solve(instance, algorithm, heuristic, start, goal):
         return None
             
     elif algorithm == 'best-fit':
-        return None
+        return search(instance, start, BestFirstOpenList(ManhattanDistanceHeuristic(goal)))
     elif algorithm == 'uniform-cost':
         return search(instance, start, UniformCostOpenList())
     elif algorithm == 'iterative-deepening':

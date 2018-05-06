@@ -155,6 +155,30 @@ class LimitedDepthFirstOpenList:
     def extend(self, nodes):
         self.open_list.extend(filter(lambda n: n.depth <= self.limit, nodes))
 
+class BestFirstOpenList:
+    def __init__(self, heuristic):
+        self.open_list = []
+        self.heuristic = heuristic
+            
+    def __str__(self):
+        return str(list(map(str, map(lambda n: n[1], self.open_list))))
+        
+    def __len__(self):
+        return len(self.open_list)
+        
+    def init(self, nodes):
+        self.open_list = []
+        
+        for node in nodes:
+            heapq.heappush(self.open_list, (self.heuristic.get(node), node))
+        
+    def pop(self):
+        return heapq.heappop(self.open_list)[1]
+        
+    def extend(self, nodes):
+        for node in nodes:
+            heapq.heappush(self.open_list, (self.heuristic.get(node), node))
+
 def search(instance, start, open_list):
     closed_list = set()
     best_path = {}
