@@ -59,6 +59,9 @@ class Solution:
             i = i.pred
             
         self.steps.reverse()
+        
+    def __getitem__(self, key):
+        return self.steps[key]
             
     def __str__(self):
         return " ".join(list(map(lambda s: "<%d, %d, %g>" % (s.state.label[0], s.state.label[1], s.cost), self.steps)))

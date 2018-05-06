@@ -86,6 +86,9 @@ def main():
     
     solution = solve(instance, algorithm, heuristic, (x_s, y_s), (x_g, y_g))
     
+    print(solution[0])
+    print(solution[-1])
+    print()
     print(solution)
     
 if __name__ == "__main__":
