@@ -19,10 +19,10 @@ class Instance:
         self.goal = None
         
     def set_goal(self, state):
-        if state.info:
-            self.goal = state
-        else:
-            raise ValueError("goal state is not reachable")
+        try:
+            self.goal = self.states[state]
+        except:
+            raise InvalidGoalError("goal state is not reachable")
     
     def is_goal(self, state):
         return state.label == self.goal.label
@@ -68,6 +68,10 @@ class Solution:
 
 class SolutionNotFoundError(Exception):
     pass
+
+class InvalidGoalError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
 
 class BreadthFirstOpenList:
     def __init__(self):

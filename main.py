@@ -23,8 +23,8 @@ def create_instance(width, height, grid):
     
     return instance
 
-def solve(instance, algorithm, heuristic, start, goal):
-    instance.set_goal(instance.states[goal])
+def solve(instance, algorithm, heuristic, start, goal): 
+    instance.set_goal(goal)
     
     if algorithm == 'a-star':
         if heuristic is None:
@@ -84,12 +84,17 @@ def main():
     
     instance = create_instance(width, height, grid)
     
-    solution = solve(instance, algorithm, heuristic, (x_s, y_s), (x_g, y_g))
-    
-    print(solution[0])
-    print(solution[-1])
-    print()
-    print(solution)
+    try:
+        solution = solve(instance, algorithm, heuristic, (x_s, y_s), (x_g, y_g))
+        
+        print(solution[0])
+        print(solution[-1])
+        print()
+        print(solution)
+    except (SolutionNotFoundError, InvalidGoalError):
+        print("<%d, %d, %g>" % (x_s, y_s, 0))
+        print("<%d, %d, %g>" % (x_g, y_g, float("inf")))
+        print()
     
 if __name__ == "__main__":
     main()
