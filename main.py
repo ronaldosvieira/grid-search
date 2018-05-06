@@ -29,11 +29,12 @@ def solve(instance, algorithm, heuristic, start, goal):
     if algorithm == 'a-star':
         if heuristic is None:
             throw_error("heuristic is mandatory for a-star")
-            
-        if heuristic not in ['manhattan', 'octile']:
+        elif heuristic == 'manhattan':
+            return search(instance, start, AStarOpenList(ManhattanDistanceHeuristic(goal)))
+        elif heuristic == 'octile':
+            return search(instance, start, AStarOpenList(OctileDistanceHeuristic(goal)))
+        else:
             throw_error("invalid heuristic")
-            
-        return None
             
     elif algorithm == 'best-fit':
         return search(instance, start, BestFirstOpenList(ManhattanDistanceHeuristic(goal)))

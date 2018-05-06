@@ -179,6 +179,30 @@ class BestFirstOpenList:
         for node in nodes:
             heapq.heappush(self.open_list, (self.heuristic.get(node), node))
 
+class AStarOpenList:
+    def __init__(self, heuristic):
+        self.open_list = []
+        self.heuristic = heuristic
+            
+    def __str__(self):
+        return str(list(map(str, map(lambda n: n[1], self.open_list))))
+        
+    def __len__(self):
+        return len(self.open_list)
+        
+    def init(self, nodes):
+        self.open_list = []
+        
+        for node in nodes:
+            heapq.heappush(self.open_list, (node.cost + self.heuristic.get(node), node))
+        
+    def pop(self):
+        return heapq.heappop(self.open_list)[1]
+        
+    def extend(self, nodes):
+        for node in nodes:
+            heapq.heappush(self.open_list, (node.cost + self.heuristic.get(node), node))
+
 def search(instance, start, open_list):
     closed_list = set()
     best_path = {}
