@@ -88,10 +88,15 @@ def main():
     try:
         solution = solve(instance, algorithm, heuristic, (x_s, y_s), (x_g, y_g))
         
+        #for step in solution:
+        #    x, y = step.state.label
+        #    grid[x][y] = 'x'
+        
         print(solution[0])
         print(solution[-1])
         print()
         print(solution)
+        #print("\n".join(map(lambda l: "".join(l), grid)))
     except (SolutionNotFoundError, InvalidGoalError):
         print("<%d, %d, %g>" % (x_s, y_s, 0))
         print("<%d, %d, %g>" % (x_g, y_g, float("inf")))
