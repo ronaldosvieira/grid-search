@@ -36,7 +36,7 @@ def solve(instance, algorithm, heuristic, start, goal):
         else:
             throw_error("invalid heuristic")
             
-    elif algorithm == 'best-fit':
+    elif algorithm == 'best-first':
         return search(instance, start, BestFirstOpenList(ManhattanDistanceHeuristic(goal)))
     elif algorithm == 'uniform-cost':
         return search(instance, start, UniformCostOpenList())
