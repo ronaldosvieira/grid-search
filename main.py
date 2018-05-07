@@ -76,7 +76,7 @@ def main():
     except:
         heuristic = None
     
-    with open("maps/" + map_name, 'r') as file:
+    with open(map_name, 'r') as file:
         data = file.readlines()
         
     height = int(data[1].split()[1])
