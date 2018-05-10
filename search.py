@@ -50,8 +50,10 @@ class Node:
         return "<%d %d %g>" % (self.state.label[0], self.state.label[1], self.cost)
 
 class Solution:
-    def __init__(self, goal):
+    def __init__(self, goal, info):
         self.steps = []
+        self.info = info
+        self.info["depth"] = goal.depth
         i = goal
         
         while i:
@@ -60,6 +62,8 @@ class Solution:
             
         self.steps.reverse()
         
+        self.info["b*"] = len(self.info["nodes_generated"]) ** (1 / self.info["depth"])
+        
     def __getitem__(self, key):
         return self.steps[key]
             
@@ -67,7 +71,8 @@ class Solution:
         return " ".join(list(map(lambda s: "<%d, %d, %g>" % (s.state.label[0], s.state.label[1], s.cost), self.steps)))
 
 class SolutionNotFoundError(Exception):
-    pass
+    def __init__(self, open_list):
+        self.open_list = open_list
 
 class InvalidGoalError(Exception):
     def __init__(self, message):
@@ -93,8 +98,23 @@ class OctileDistanceHeuristic:
         
         return max(dx, dy) + 0.5 * min(dx, dy)
 
-class BreadthFirstOpenList:
+class OpenList(object):
     def __init__(self):
+        self.nodes_generated = set()
+        
+    def init(self, nodes):
+        self.nodes_generated = set(nodes)
+        
+    def extend(self, nodes):
+        for node in nodes:
+            self.nodes_generated.add(node)
+        
+    def stats(self):
+        return {"nodes_generated": self.nodes_generated}
+
+class BreadthFirstOpenList(OpenList):
+    def __init__(self):
+        super().__init__()
         self.open_list = deque([])
         
     def __str__(self):
@@ -104,16 +124,19 @@ class BreadthFirstOpenList:
         return len(self.open_list)
         
     def init(self, nodes):
+        super().init(nodes)
         self.open_list = deque(list(nodes))
         
     def pop(self):
         return self.open_list.popleft()
         
     def extend(self, nodes):
+        super().extend(nodes)
         self.open_list.extend(nodes)
         
-class UniformCostOpenList:
+class UniformCostOpenList(OpenList):
     def __init__(self):
+        super().__init__()
         self.open_list = []
             
     def __str__(self):
@@ -123,6 +146,7 @@ class UniformCostOpenList:
         return len(self.open_list)
         
     def init(self, nodes):
+        super().init(nodes)
         self.open_list = []
         
         for node in nodes:
@@ -132,11 +156,14 @@ class UniformCostOpenList:
         return heapq.heappop(self.open_list)[1]
         
     def extend(self, nodes):
+        super().extend(nodes)
+        
         for node in nodes:
             heapq.heappush(self.open_list, (node.cost, node))
 
-class LimitedDepthFirstOpenList:
+class LimitedDepthFirstOpenList(OpenList):
     def __init__(self, limit):
+        super().__init__()
         self.limit = limit
         self.open_list = []
         
@@ -147,16 +174,19 @@ class LimitedDepthFirstOpenList:
         return len(self.open_list)
         
     def init(self, nodes):
-        self.open_list = [] + nodes
+        super().init(list(filter(lambda n: n.depth <= self.limit, nodes)))
+        self.open_list = [] + list(filter(lambda n: n.depth <= self.limit, nodes))
         
     def pop(self):
         return self.open_list.pop()
         
     def extend(self, nodes):
+        super().extend(filter(lambda n: n.depth <= self.limit, nodes))
         self.open_list.extend(filter(lambda n: n.depth <= self.limit, nodes))
 
-class BestFirstOpenList:
+class BestFirstOpenList(OpenList):
     def __init__(self, heuristic):
+        super().__init__()
         self.open_list = []
         self.heuristic = heuristic
             
@@ -167,6 +197,7 @@ class BestFirstOpenList:
         return len(self.open_list)
         
     def init(self, nodes):
+        super().init(nodes)
         self.open_list = []
         
         for node in nodes:
@@ -176,11 +207,14 @@ class BestFirstOpenList:
         return heapq.heappop(self.open_list)[1]
         
     def extend(self, nodes):
+        super().extend(nodes)
+        
         for node in nodes:
             heapq.heappush(self.open_list, (self.heuristic.get(node), node))
 
-class AStarOpenList:
+class AStarOpenList(OpenList):
     def __init__(self, heuristic):
+        super().__init__()
         self.open_list = []
         self.heuristic = heuristic
             
@@ -191,6 +225,7 @@ class AStarOpenList:
         return len(self.open_list)
         
     def init(self, nodes):
+        super().init(nodes)
         self.open_list = []
         
         for node in nodes:
@@ -200,6 +235,8 @@ class AStarOpenList:
         return heapq.heappop(self.open_list)[1]
         
     def extend(self, nodes):
+        super().extend(nodes)
+        
         for node in nodes:
             heapq.heappush(self.open_list, (node.cost + self.heuristic.get(node), node))
 
@@ -212,14 +249,14 @@ def search(instance, start, open_list):
         current = open_list.pop()
         
         if instance.is_goal(current.state):
-            return Solution(current)
+            return Solution(current, open_list.stats())
             
         if current.state not in closed_list:
             closed_list.add(current.state)
             best_path[current.state.label] = current.cost
             
-            open_list.extend(filter(lambda n: n.state not in closed_list or n.cost < best_path[n.state.label], 
+            open_list.extend(list(filter(lambda n: n.state not in closed_list or n.cost < best_path[n.state.label], 
                                     map(lambda s: Node(s[0], current, current.cost + s[1], current.depth + 1), 
-                                        current.state.successors)))
-        
-    raise SolutionNotFoundError()
+                                        current.state.successors))))
+    
+    raise SolutionNotFoundError(open_list)
