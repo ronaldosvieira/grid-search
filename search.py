@@ -251,11 +251,12 @@ def search(instance, start, open_list):
         if instance.is_goal(current.state):
             return Solution(current, open_list.stats())
             
-        if current.state not in closed_list:
-            closed_list.add(current.state)
+        if current.state.label not in closed_list:
+            closed_list.add(current.state.label)
+            
             best_path[current.state.label] = current.cost
             
-            open_list.extend(list(filter(lambda n: n.state not in closed_list or n.cost < best_path[n.state.label], 
+            open_list.extend(list(filter(lambda n: n.state.label not in closed_list or n.cost < best_path[n.state.label], 
                                     map(lambda s: Node(s[0], current, current.cost + s[1], current.depth + 1), 
                                         current.state.successors))))
     
