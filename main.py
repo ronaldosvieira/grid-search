@@ -40,6 +40,8 @@ def solve(instance, algorithm, heuristic, start, goal):
         return search(instance, start, BestFirstOpenList(ManhattanDistanceHeuristic(goal)))
     elif algorithm == 'uniform-cost':
         return search(instance, start, UniformCostOpenList())
+    elif algorithm == 'limited-depth-first':
+        return search(instance, start, LimitedDepthFirstOpenList(int(heuristic)))
     elif algorithm == 'iterative-deepening':
         depth = 0
         
