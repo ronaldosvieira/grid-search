@@ -1,4 +1,4 @@
-import sys
+import sys, time
 from search import *
 
 def create_instance(width, height, grid):
@@ -86,21 +86,49 @@ def main():
     instance = create_instance(width, height, grid)
     
     try:
+        start_time = time.time()
+        
         solution = solve(instance, algorithm, heuristic, (x_s, y_s), (x_g, y_g))
         
-        #for step in solution:
-        #    x, y = step.state.label
-        #    grid[x][y] = 'x'
+        end_time = time.time()
+        
+        for node in solution.info["nodes_generated"]:
+            x, y = node.state.label
+            grid[x][y] = '!' if (x, y) in solution.info["nodes_expanded"] else ':'
+        
+        for step in solution:
+            x, y = step.state.label
+            grid[x][y] = 'x'
+            
+        grid[x_s][y_s] = 'S'
+        grid[x_g][y_g] = 'G'
         
         print(solution[0])
         print(solution[-1])
         print()
         print(solution)
-        #print("\n".join(map(lambda l: "".join(l), grid)))
-    except (SolutionNotFoundError, InvalidGoalError):
+        print("\n".join(map(lambda l: "".join(l), grid)))
+        print("nodes generated: %d" % (len(solution.info["nodes_generated"])))
+        print("nodes expanded: %d" % len(solution.info["nodes_expanded"]))
+        print("depth: %d" % solution.info["depth"])
+        print("cost: %d" % solution.info["cost"])
+        print("time elapsed: %g" % (end_time - start_time))
+    except InvalidGoalError:
         print("<%d, %d, %g>" % (x_s, y_s, 0))
         print("<%d, %d, %g>" % (x_g, y_g, float("inf")))
         print()
+    except SolutionNotFoundError as e:
+        for node in e.open_list.stats()["nodes_generated"]:
+            x, y = node.state.label
+            grid[x][y] = '!' if (x, y) in e.closed_list else ':'
+            
+        grid[x_s][y_s] = 'S'
+        grid[x_g][y_g] = 'G'
+        
+        print("<%d, %d, %g>" % (x_s, y_s, 0))
+        print("<%d, %d, %g>" % (x_g, y_g, float("inf")))
+        print()
+        print("\n".join(map(lambda l: "".join(l), grid)))
     
 if __name__ == "__main__":
     main()
