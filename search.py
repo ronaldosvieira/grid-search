@@ -179,15 +179,15 @@ class LimitedDepthFirstOpenList(OpenList):
         return len(self.open_list)
         
     def init(self, nodes):
-        super().init(list(filter(lambda n: n.depth <= self.limit, nodes)))
-        self.open_list = [] + list(filter(lambda n: n.depth <= self.limit, nodes))
+        super().init(list(filter(lambda n: n.cost <= self.limit, nodes)))
+        self.open_list = [] + list(filter(lambda n: n.cost <= self.limit, nodes))
         
     def pop(self):
         return self.open_list.pop()
         
     def extend(self, nodes):
-        super().extend(filter(lambda n: n.depth <= self.limit, nodes))
-        self.open_list.extend(filter(lambda n: n.depth <= self.limit, nodes))
+        super().extend(filter(lambda n: n.cost <= self.limit, nodes))
+        self.open_list.extend(filter(lambda n: n.cost <= self.limit, nodes))
 
 class BestFirstOpenList(OpenList):
     def __init__(self, heuristic):
@@ -256,13 +256,12 @@ def search(instance, start, open_list):
         if instance.is_goal(current.state):
             return Solution(current, open_list, closed_list)
             
-        if current.state.label not in closed_list:
+        if current.state.label not in closed_list or current.cost < best_path[current.state.label]:
             closed_list.add(current.state.label)
             
             best_path[current.state.label] = current.cost
             
-            open_list.extend(list(filter(lambda n: n.state.label not in closed_list or n.cost < best_path[n.state.label], 
-                                    map(lambda s: Node(s[0], current, current.cost + s[1], current.depth + 1), 
-                                        current.state.successors))))
+            open_list.extend(list(map(lambda s: Node(s[0], current, current.cost + s[1], current.depth + 1), 
+                                        current.state.successors)))
     
     raise SolutionNotFoundError(open_list, closed_list)
