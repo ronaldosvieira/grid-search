@@ -171,7 +171,6 @@ class LimitedDepthFirstOpenList(OpenList):
         super().__init__()
         self.limit = limit
         self.open_list = []
-        self.best_cost = defaultdict(lambda: float("inf"))
         
     def __str__(self):
         return str(list(map(str, self.open_list)))
@@ -180,7 +179,7 @@ class LimitedDepthFirstOpenList(OpenList):
         return len(self.open_list)
         
     def init(self, nodes):
-        nodes = filter(lambda n: n.cost <= min(self.limit, self.best_cost[n.state.label]), nodes)
+        nodes = filter(lambda n: n.cost <= self.limit, nodes)
         nodes = list(nodes)
         
         super().init(nodes)
@@ -190,11 +189,8 @@ class LimitedDepthFirstOpenList(OpenList):
         return self.open_list.pop()
         
     def extend(self, nodes):
-        nodes = filter(lambda n: n.cost <= min(self.limit, self.best_cost[n.state.label]), nodes)
+        nodes = filter(lambda n: n.cost <= self.limit, nodes)
         nodes = list(nodes)
-        
-        for node in nodes:
-            self.best_cost[node.state.label] = min(self.best_cost[node.state.label], node.cost)
         
         super().extend(nodes)
         self.open_list.extend(nodes)
@@ -257,7 +253,7 @@ class AStarOpenList(OpenList):
 
 def search(instance, start, open_list):
     closed_list = set()
-    best_path = {}
+    best_path = defaultdict(lambda: float("inf"))
     open_list.init([Node(instance.states[start])])
     
     while open_list:
@@ -266,12 +262,19 @@ def search(instance, start, open_list):
         if instance.is_goal(current.state):
             return Solution(current, open_list, closed_list)
             
-        if current.state.label not in closed_list or current.cost < best_path[current.state.label]:
+        if current.state.label not in closed_list or current.cost <= best_path[current.state.label]:
             closed_list.add(current.state.label)
             
             best_path[current.state.label] = current.cost
             
-            open_list.extend(list(map(lambda s: Node(s[0], current, current.cost + s[1], current.depth + 1), 
-                                        current.state.successors)))
+            successors = map(lambda s: Node(s[0], current, current.cost + s[1], current.depth + 1), 
+                                current.state.successors)
+            successors = filter(lambda n: n.cost < best_path[n.state.label], successors)
+            successors = list(successors)
+            
+            for node in successors:
+                best_path[node.state.label] = min(best_path[node.state.label], node.cost)
+            
+            open_list.extend(successors)
     
     raise SolutionNotFoundError(open_list, closed_list)
