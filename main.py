@@ -120,7 +120,7 @@ def main():
         print("<%d, %d, %g>" % (x_g, y_g, float("inf")))
         print()
     except SolutionNotFoundError as e:
-        for node in e.open_list.stats()["nodes_generated"]:
+        for node in e.open_list.nodes():
             x, y = node.state.label
             grid[x][y] = '!' if (x, y) in e.closed_list else ':'
             
