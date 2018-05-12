@@ -1,4 +1,4 @@
-from collections import deque
+from collections import deque, defaultdict
 import heapq
 
 class State:
@@ -171,6 +171,7 @@ class LimitedDepthFirstOpenList(OpenList):
         super().__init__()
         self.limit = limit
         self.open_list = []
+        self.best_cost = defaultdict(lambda: float("inf"))
         
     def __str__(self):
         return str(list(map(str, self.open_list)))
@@ -179,15 +180,24 @@ class LimitedDepthFirstOpenList(OpenList):
         return len(self.open_list)
         
     def init(self, nodes):
-        super().init(list(filter(lambda n: n.cost <= self.limit, nodes)))
-        self.open_list = [] + list(filter(lambda n: n.cost <= self.limit, nodes))
+        nodes = filter(lambda n: n.cost <= min(self.limit, self.best_cost[n.state.label]), nodes)
+        nodes = list(nodes)
+        
+        super().init(nodes)
+        self.open_list = [] + nodes
         
     def pop(self):
         return self.open_list.pop()
         
     def extend(self, nodes):
-        super().extend(filter(lambda n: n.cost <= self.limit, nodes))
-        self.open_list.extend(filter(lambda n: n.cost <= self.limit, nodes))
+        nodes = filter(lambda n: n.cost <= min(self.limit, self.best_cost[n.state.label]), nodes)
+        nodes = list(nodes)
+        
+        for node in nodes:
+            self.best_cost[node.state.label] = min(self.best_cost[node.state.label], node.cost)
+        
+        super().extend(nodes)
+        self.open_list.extend(nodes)
 
 class BestFirstOpenList(OpenList):
     def __init__(self, heuristic):
