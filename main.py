@@ -41,7 +41,7 @@ def solve(instance, algorithm, heuristic, start, goal):
     elif algorithm == 'uniform-cost':
         return search(instance, start, UniformCostOpenList())
     elif algorithm == 'limited-depth-first':
-        return search(instance, start, LimitedDepthFirstOpenList(int(heuristic)))
+        return search(instance, start, LimitedDepthFirstOpenList(float(heuristic)))
     elif algorithm == 'iterative-deepening':
         depth = 0
         
