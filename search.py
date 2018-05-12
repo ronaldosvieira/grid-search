@@ -50,10 +50,14 @@ class Node:
         return "<%d %d %g>" % (self.state.label[0], self.state.label[1], self.cost)
 
 class Solution:
-    def __init__(self, goal, info):
+    def __init__(self, goal, open_list, closed_list):
         self.steps = []
-        self.info = info
+        self.info = {}
+        
+        self.info["nodes_generated"] = open_list.nodes()
+        self.info["nodes_expanded"] = closed_list
         self.info["depth"] = goal.depth
+        self.info["cost"] = goal.cost
         i = goal
         
         while i:
@@ -71,8 +75,9 @@ class Solution:
         return " ".join(list(map(lambda s: "<%d, %d, %g>" % (s.state.label[0], s.state.label[1], s.cost), self.steps)))
 
 class SolutionNotFoundError(Exception):
-    def __init__(self, open_list):
+    def __init__(self, open_list, closed_list):
         self.open_list = open_list
+        self.closed_list = closed_list
 
 class InvalidGoalError(Exception):
     def __init__(self, message):
@@ -109,8 +114,8 @@ class OpenList(object):
         for node in nodes:
             self.nodes_generated.add(node)
         
-    def stats(self):
-        return {"nodes_generated": self.nodes_generated}
+    def nodes(self):
+        return self.nodes_generated
 
 class BreadthFirstOpenList(OpenList):
     def __init__(self):
@@ -249,7 +254,7 @@ def search(instance, start, open_list):
         current = open_list.pop()
         
         if instance.is_goal(current.state):
-            return Solution(current, open_list.stats())
+            return Solution(current, open_list, closed_list)
             
         if current.state.label not in closed_list:
             closed_list.add(current.state.label)
@@ -260,4 +265,4 @@ def search(instance, start, open_list):
                                     map(lambda s: Node(s[0], current, current.cost + s[1], current.depth + 1), 
                                         current.state.successors))))
     
-    raise SolutionNotFoundError(open_list)
+    raise SolutionNotFoundError(open_list, closed_list)
