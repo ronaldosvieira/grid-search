@@ -131,7 +131,7 @@ def main():
     except SolutionNotFoundError as e:
         for node in e.fringe.nodes():
             x, y = node.state.label
-            grid[x][y] = '!' if (x, y) in e.visited else ':'
+            grid[x][y] = '!' if (x, y) in e.fringe.visited else ':'
             
         grid[x_s][y_s] = 'S'
         grid[x_g][y_g] = 'G'

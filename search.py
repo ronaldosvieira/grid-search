@@ -75,9 +75,8 @@ class Solution:
         return " ".join(list(map(lambda s: "<%d, %d, %g>" % (s.state.label[0], s.state.label[1], s.cost), self.steps)))
 
 class SolutionNotFoundError(Exception):
-    def __init__(self, fringe, visited):
+    def __init__(self, fringe):
         self.fringe = fringe
-        self.closed_list = visited
 
 class InvalidGoalError(Exception):
     def __init__(self, message):
@@ -292,4 +291,4 @@ def search(instance, start, fringe):
             
             fringe.extend(successors)
     
-    raise SolutionNotFoundError(fringe, fringe.visited)
+    raise SolutionNotFoundError(fringe)
