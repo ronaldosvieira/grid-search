@@ -30,29 +30,40 @@ def solve(instance, algorithm, heuristic, start, goal):
         if heuristic is None:
             throw_error("heuristic is mandatory for a-star")
         elif heuristic == 'manhattan':
-            return search(instance, start, AStarOpenList(ManhattanDistanceHeuristic(goal)))
+            return search(instance, start, AStarFringe(ManhattanDistanceHeuristic(goal)))
         elif heuristic == 'octile':
-            return search(instance, start, AStarOpenList(OctileDistanceHeuristic(goal)))
+            return search(instance, start, AStarFringe(OctileDistanceHeuristic(goal)))
         else:
             throw_error("invalid heuristic")
             
     elif algorithm == 'best-first':
-        return search(instance, start, BestFirstOpenList(ManhattanDistanceHeuristic(goal)))
+        return search(instance, start, BestFirstFringe(ManhattanDistanceHeuristic(goal)))
     elif algorithm == 'uniform-cost':
-        return search(instance, start, UniformCostOpenList())
+        return search(instance, start, UniformCostFringe())
     elif algorithm == 'limited-depth-first':
-        return search(instance, start, LimitedDepthFirstOpenList(float(heuristic)))
+        return search(instance, start, LimitedDepthFirstFringe(float(heuristic)))
     elif algorithm == 'iterative-deepening':
-        depth = 0
+        limit = 0
+        fringe = LimitedDepthFirstFringe(limit)
         
         while True:
             try:
-                return search(instance, start, LimitedDepthFirstOpenList(depth))
-            except SolutionNotFoundError:
-                depth += 1
+                return search(instance, start, fringe)
+            except SolutionNotFoundError as s:
+                limit += 0.5
+                
+                if fringe.filtered_out:
+                    fringe = s.fringe
+                    
+                    fringe.limit = limit
+                    fringe.initialized = False
+                    fringe.init(list(reversed(fringe.filtered_out)))
+                else:
+                    fringe = LimitedDepthFirstFringe(limit)
+                
                 continue
             except KeyboardInterrupt as ki:
-                print("ids stopped at depth %d" % depth)
+                print("ids stopped at depth %d" % limit)
                 raise ki
     else:
         throw_error("invalid algorithm")
@@ -113,16 +124,16 @@ def main():
         print("nodes generated: %d" % (len(solution.info["nodes_generated"])))
         print("nodes expanded: %d" % len(solution.info["nodes_expanded"]))
         print("depth: %d" % solution.info["depth"])
-        print("cost: %d" % solution.info["cost"])
+        print("cost: %g" % solution.info["cost"])
         print("time elapsed: %g" % (end_time - start_time))
     except InvalidGoalError:
         print("<%d, %d, %g>" % (x_s, y_s, 0))
         print("<%d, %d, %g>" % (x_g, y_g, float("inf")))
         print()
     except SolutionNotFoundError as e:
-        for node in e.open_list.nodes():
+        for node in e.fringe.nodes():
             x, y = node.state.label
-            grid[x][y] = '!' if (x, y) in e.closed_list else ':'
+            grid[x][y] = '!' if (x, y) in e.visited else ':'
             
         grid[x_s][y_s] = 'S'
         grid[x_g][y_g] = 'G'
