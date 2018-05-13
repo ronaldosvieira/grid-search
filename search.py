@@ -50,12 +50,12 @@ class Node:
         return "<%d %d %g>" % (self.state.label[0], self.state.label[1], self.cost)
 
 class Solution:
-    def __init__(self, goal, open_list, closed_list):
+    def __init__(self, goal, fringe, visited):
         self.steps = []
         self.info = {}
         
-        self.info["nodes_generated"] = open_list.nodes()
-        self.info["nodes_expanded"] = closed_list
+        self.info["nodes_generated"] = fringe.nodes()
+        self.info["nodes_expanded"] = visited
         self.info["depth"] = goal.depth
         self.info["cost"] = goal.cost
         i = goal
@@ -75,9 +75,9 @@ class Solution:
         return " ".join(list(map(lambda s: "<%d, %d, %g>" % (s.state.label[0], s.state.label[1], s.cost), self.steps)))
 
 class SolutionNotFoundError(Exception):
-    def __init__(self, open_list, closed_list):
-        self.open_list = open_list
-        self.closed_list = closed_list
+    def __init__(self, fringe, visited):
+        self.fringe = fringe
+        self.closed_list = visited
 
 class InvalidGoalError(Exception):
     def __init__(self, message):
@@ -103,12 +103,15 @@ class OctileDistanceHeuristic:
         
         return max(dx, dy) + 0.5 * min(dx, dy)
 
-class OpenList(object):
+class Fringe(object):
     def __init__(self):
         self.nodes_generated = set()
+        self.visited = set()
+        
+        self.best_cost = defaultdict(lambda: float("inf"))
         
     def init(self, nodes):
-        self.nodes_generated = set(nodes)
+        self.nodes_generated.update(set(nodes))
         
     def extend(self, nodes):
         for node in nodes:
@@ -117,7 +120,7 @@ class OpenList(object):
     def nodes(self):
         return self.nodes_generated
 
-class BreadthFirstOpenList(OpenList):
+class BreadthFirstFringe(Fringe):
     def __init__(self):
         super().__init__()
         self.open_list = deque([])
@@ -139,7 +142,7 @@ class BreadthFirstOpenList(OpenList):
         super().extend(nodes)
         self.open_list.extend(nodes)
         
-class UniformCostOpenList(OpenList):
+class UniformCostFringe(Fringe):
     def __init__(self):
         super().__init__()
         self.open_list = []
@@ -166,11 +169,16 @@ class UniformCostOpenList(OpenList):
         for node in nodes:
             heapq.heappush(self.open_list, (node.cost, node))
 
-class LimitedDepthFirstOpenList(OpenList):
+class LimitedDepthFirstFringe(Fringe):
     def __init__(self, limit):
         super().__init__()
+        
         self.limit = limit
+        
         self.open_list = []
+        self.filtered_out = []
+        
+        self.initialized = False
         
     def __str__(self):
         return str(list(map(str, self.open_list)))
@@ -179,23 +187,28 @@ class LimitedDepthFirstOpenList(OpenList):
         return len(self.open_list)
         
     def init(self, nodes):
-        nodes = filter(lambda n: n.cost <= self.limit, nodes)
-        nodes = list(nodes)
-        
-        super().init(nodes)
-        self.open_list = [] + nodes
+        if not self.initialized:
+            self.filtered_out = [] + list(reversed(list(filter(lambda n: n.cost > self.limit, nodes))))
+            nodes = filter(lambda n: n.cost <= self.limit, nodes)
+            nodes = list(nodes)
+            
+            super().init(nodes)
+            self.open_list = [] + nodes
+            
+            self.initialized = True
         
     def pop(self):
         return self.open_list.pop()
         
     def extend(self, nodes):
+        self.filtered_out.extend(list(reversed(list(filter(lambda n: n.cost > self.limit, nodes)))))
         nodes = filter(lambda n: n.cost <= self.limit, nodes)
         nodes = list(nodes)
         
         super().extend(nodes)
         self.open_list.extend(nodes)
 
-class BestFirstOpenList(OpenList):
+class BestFirstFringe(Fringe):
     def __init__(self, heuristic):
         super().__init__()
         self.open_list = []
@@ -223,7 +236,7 @@ class BestFirstOpenList(OpenList):
         for node in nodes:
             heapq.heappush(self.open_list, (self.heuristic.get(node), node))
 
-class AStarOpenList(OpenList):
+class AStarFringe(Fringe):
     def __init__(self, heuristic):
         super().__init__()
         self.open_list = []
@@ -251,30 +264,28 @@ class AStarOpenList(OpenList):
         for node in nodes:
             heapq.heappush(self.open_list, (node.cost + self.heuristic.get(node), node))
 
-def search(instance, start, open_list):
-    closed_list = set()
-    best_path = defaultdict(lambda: float("inf"))
-    open_list.init([Node(instance.states[start])])
+def search(instance, start, fringe):
+    fringe.init([Node(instance.states[start])])
     
-    while open_list:
-        current = open_list.pop()
+    while fringe:
+        current = fringe.pop()
         
         if instance.is_goal(current.state):
-            return Solution(current, open_list, closed_list)
+            return Solution(current, fringe, fringe.visited)
             
-        if current.state.label not in closed_list or current.cost <= best_path[current.state.label]:
-            closed_list.add(current.state.label)
+        if current.state.label not in fringe.visited or current.cost <= fringe.best_cost[current.state.label]:
+            fringe.visited.add(current.state.label)
             
-            best_path[current.state.label] = current.cost
+            fringe.best_cost[current.state.label] = current.cost
             
             successors = map(lambda s: Node(s[0], current, current.cost + s[1], current.depth + 1), 
                                 current.state.successors)
-            successors = filter(lambda n: n.cost < best_path[n.state.label], successors)
+            successors = filter(lambda n: n.cost < fringe.best_cost[n.state.label], successors)
             successors = list(successors)
             
             for node in successors:
-                best_path[node.state.label] = min(best_path[node.state.label], node.cost)
+                fringe.best_cost[node.state.label] = min(fringe.best_cost[node.state.label], node.cost)
             
-            open_list.extend(successors)
+            fringe.extend(successors)
     
-    raise SolutionNotFoundError(open_list, closed_list)
+    raise SolutionNotFoundError(fringe, fringe.visited)
