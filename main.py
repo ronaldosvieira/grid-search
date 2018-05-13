@@ -124,7 +124,7 @@ def main():
         print("nodes generated: %d" % (len(solution.info["nodes_generated"])))
         print("nodes expanded: %d" % len(solution.info["nodes_expanded"]))
         print("depth: %d" % solution.info["depth"])
-        print("cost: %d" % solution.info["cost"])
+        print("cost: %g" % solution.info["cost"])
         print("time elapsed: %g" % (end_time - start_time))
     except InvalidGoalError:
         print("<%d, %d, %g>" % (x_s, y_s, 0))
