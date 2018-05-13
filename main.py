@@ -50,12 +50,10 @@ def solve(instance, algorithm, heuristic, start, goal):
             try:
                 return search(instance, start, fringe)
             except SolutionNotFoundError as s:
-                limit += 0.5
-                
                 if fringe.filtered_out:
                     fringe = s.fringe
                     
-                    fringe.limit = limit
+                    fringe.limit += 0.5
                     fringe.initialized = False
                     fringe.init(list(reversed(fringe.filtered_out)))
                 else:

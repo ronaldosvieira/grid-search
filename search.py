@@ -188,8 +188,10 @@ class LimitedDepthFirstFringe(Fringe):
         
     def init(self, nodes):
         if not self.initialized:
-            self.filtered_out = [] + list(reversed(list(filter(lambda n: n.cost > self.limit, nodes))))
-            nodes = filter(lambda n: n.cost <= self.limit, nodes)
+            within_limit = lambda n: n.cost <= self.limit
+            
+            self.filtered_out = [] + list(reversed(list(filter(lambda n: not within_limit(n), nodes))))
+            nodes = filter(within_limit, nodes)
             nodes = list(nodes)
             
             super().init(nodes)
@@ -201,8 +203,10 @@ class LimitedDepthFirstFringe(Fringe):
         return self.open_list.pop()
         
     def extend(self, nodes):
-        self.filtered_out.extend(list(reversed(list(filter(lambda n: n.cost > self.limit, nodes)))))
-        nodes = filter(lambda n: n.cost <= self.limit, nodes)
+        within_limit = lambda n: n.cost <= self.limit
+        
+        self.filtered_out.extend(list(reversed(list(filter(lambda n: not within_limit(n), nodes)))))
+        nodes = filter(within_limit, nodes)
         nodes = list(nodes)
         
         super().extend(nodes)
