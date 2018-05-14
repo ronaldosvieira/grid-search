@@ -1,5 +1,6 @@
 import sys, time
 from search import *
+from PIL import Image
 
 def create_instance(width, height, grid):
     instance = Instance()
@@ -72,6 +73,27 @@ def throw_error(error = None):
 
     sys.exit(1)
 
+def create_image(grid, generated, expanded, solution=None):
+    for x in range(0, len(grid)):
+        for y in range(0, len(grid[0])):
+            grid[x][y] = (255, 255, 255) if grid[x][y] == '.' else (52, 52, 52)
+    
+    for node in generated:
+        x, y = node
+        grid[x][y] = (135,206,235) if (x, y) in expanded else (201,233,246)
+    
+    if solution:
+        for step in solution:
+            x, y = step.state.label
+            grid[x][y] = (255,0,0)
+        
+    #grid[x_s][y_s] = (109,192,102)
+    #grid[x_g][y_g] = (192,102,109)
+    
+    newimage = Image.new('RGB', (len(grid[0]), len(grid)))
+    newimage.putdata([tuple(p) for row in grid for p in row])
+    newimage.save("tests/img.png")
+
 def main():
     raw_data = sys.argv
     
@@ -103,22 +125,14 @@ def main():
         
         end_time = time.time()
         
-        for node in solution.info["nodes_generated"]:
-            x, y = node.state.label
-            grid[x][y] = '!' if (x, y) in solution.info["nodes_expanded"] else ':'
-        
-        for step in solution:
-            x, y = step.state.label
-            grid[x][y] = 'x'
-            
-        grid[x_s][y_s] = 'S'
-        grid[x_g][y_g] = 'G'
+        create_image(grid, solution.info["nodes_generated_no_opt"], solution.info["nodes_expanded"], solution)
         
         print(solution[0])
         print(solution[-1])
         print()
         print(solution)
-        print("\n".join(map(lambda l: "".join(l), grid)))
+       # print("\n".join(map(lambda l: "".join(l), grid)))
+        print("nodes generated (no opt): %d" % (len(solution.info["nodes_generated_no_opt"])))
         print("nodes generated: %d" % (len(solution.info["nodes_generated"])))
         print("nodes expanded: %d" % len(solution.info["nodes_expanded"]))
         print("depth: %d" % solution.info["depth"])
@@ -129,17 +143,12 @@ def main():
         print("<%d, %d, %g>" % (x_g, y_g, float("inf")))
         print()
     except SolutionNotFoundError as e:
-        for node in e.fringe.nodes():
-            x, y = node.state.label
-            grid[x][y] = '!' if (x, y) in e.fringe.visited else ':'
-            
-        grid[x_s][y_s] = 'S'
-        grid[x_g][y_g] = 'G'
+        create_image(grid, e.fringe.nodes(), e.fringe.visited)
         
         print("<%d, %d, %g>" % (x_s, y_s, 0))
         print("<%d, %d, %g>" % (x_g, y_g, float("inf")))
         print()
-        print("\n".join(map(lambda l: "".join(l), grid)))
+        #print("\n".join(map(lambda l: "".join(l), grid)))
     
 if __name__ == "__main__":
     main()
