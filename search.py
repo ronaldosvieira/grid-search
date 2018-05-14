@@ -284,7 +284,7 @@ def search(instance, start, fringe):
             successors = map(lambda s: Node(s[0], current, current.cost + s[1], current.depth + 1), 
                                 current.state.successors)
             successors = list(successors)
-            fringe.nodes_generated_no_opt.update(map(lambda n: n.state.label, successors))
+            fringe.nodes_generated_no_opt.update(successors)
             successors = filter(lambda n: n.cost < fringe.best_cost[n.state.label], successors)
             successors = list(successors)
             

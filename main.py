@@ -62,7 +62,7 @@ def solve(instance, algorithm, heuristic, start, goal):
                 
                 continue
             except KeyboardInterrupt as ki:
-                print("ids stopped at depth %d" % limit)
+                print("ids stopped at limit %d" % limit)
                 raise ki
     else:
         throw_error("invalid algorithm")
@@ -79,7 +79,7 @@ def create_image(grid, generated, expanded, solution=None):
             grid[x][y] = (255, 255, 255) if grid[x][y] == '.' else (52, 52, 52)
     
     for node in generated:
-        x, y = node
+        x, y = node.state.label
         grid[x][y] = (135,206,235) if (x, y) in expanded else (201,233,246)
     
     if solution:
