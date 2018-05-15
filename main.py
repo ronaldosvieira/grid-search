@@ -125,7 +125,7 @@ def main():
         
         end_time = time.time()
         
-        create_image(grid, solution.info["nodes_generated_no_opt"], solution.info["nodes_expanded"], solution)
+        create_image(grid, solution.info["nodes_generated"], solution.info["nodes_expanded"], solution)
         
         print(solution[0])
         print(solution[-1])
