@@ -119,36 +119,28 @@ def main():
     instance = create_instance(width, height, grid)
     
     try:
-        start_time = time.time()
+        #start_time = time.time()
         
         solution = solve(instance, algorithm, heuristic, (x_s, y_s), (x_g, y_g))
         
-        end_time = time.time()
+        #end_time = time.time()
         
-        create_image(grid, solution.info["nodes_generated"], solution.info["nodes_expanded"], solution)
+        #create_image(grid, solution.info["nodes_generated"], solution.info["nodes_expanded"], solution)
         
         print(solution[0])
         print(solution[-1])
         print()
         print(solution)
-       # print("\n".join(map(lambda l: "".join(l), grid)))
-        print("nodes generated (no opt): %d" % (len(solution.info["nodes_generated_no_opt"])))
-        print("nodes generated: %d" % (len(solution.info["nodes_generated"])))
-        print("nodes expanded: %d" % len(solution.info["nodes_expanded"]))
-        print("depth: %d" % solution.info["depth"])
-        print("cost: %g" % solution.info["cost"])
-        print("time elapsed: %g" % (end_time - start_time))
     except InvalidGoalError:
         print("<%d, %d, %g>" % (x_s, y_s, 0))
         print("<%d, %d, %g>" % (x_g, y_g, float("inf")))
         print()
     except SolutionNotFoundError as e:
-        create_image(grid, e.fringe.nodes(), e.fringe.visited)
-        
         print("<%d, %d, %g>" % (x_s, y_s, 0))
         print("<%d, %d, %g>" % (x_g, y_g, float("inf")))
         print()
-        #print("\n".join(map(lambda l: "".join(l), grid)))
+        
+        #create_image(grid, e.fringe.nodes(), e.fringe.visited)
     
 if __name__ == "__main__":
     main()

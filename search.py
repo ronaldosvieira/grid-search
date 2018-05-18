@@ -55,7 +55,6 @@ class Solution:
         self.info = {}
         
         self.info["nodes_generated"] = fringe.nodes()
-        self.info["nodes_generated_no_opt"] = fringe.nodes_generated_no_opt
         self.info["nodes_expanded"] = visited
         self.info["depth"] = goal.depth
         self.info["cost"] = goal.cost
@@ -103,7 +102,6 @@ class OctileDistanceHeuristic:
 
 class Fringe(object):
     def __init__(self):
-        self.nodes_generated_no_opt = set()
         self.nodes_generated = set()
         self.visited = set()
         
@@ -283,8 +281,6 @@ def search(instance, start, fringe):
             
             successors = map(lambda s: Node(s[0], current, current.cost + s[1], current.depth + 1), 
                                 current.state.successors)
-            successors = list(successors)
-            fringe.nodes_generated_no_opt.update(successors)
             successors = filter(lambda n: n.cost < fringe.best_cost[n.state.label], successors)
             successors = list(successors)
             
