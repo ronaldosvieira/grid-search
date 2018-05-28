@@ -1,7 +1,7 @@
 # grid-search
 Common state space search algorithms on a 2D grid
 
-## Dependencies
+## Requirements
 - Python 3
 - Tkinter (`sudo apt install python3-tk`)
 - PIL (`sudo apt install python3-pil python3-pil.imagetk`)
