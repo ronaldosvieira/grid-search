@@ -1,6 +1,7 @@
 import sys, time
 from search import *
-from PIL import Image
+import tkinter as tk
+from PIL import Image, ImageTk
 
 def create_instance(width, height, grid):
     instance = Instance()
@@ -90,9 +91,11 @@ def create_image(grid, generated, expanded, solution=None):
     #grid[x_s][y_s] = (109,192,102)
     #grid[x_g][y_g] = (192,102,109)
     
-    newimage = Image.new('RGB', (len(grid[0]), len(grid)))
-    newimage.putdata([tuple(p) for row in grid for p in row])
-    newimage.save("tests/img.png")
+    image = Image.new('RGB', (len(grid[0]), len(grid)))
+    image.putdata([tuple(p) for row in grid for p in row])
+    #image.save("tests/img.png")
+    
+    return image
 
 def main():
     raw_data = sys.argv
@@ -119,18 +122,25 @@ def main():
     instance = create_instance(width, height, grid)
     
     try:
-        #start_time = time.time()
+        start_time = time.time()
         
         solution = solve(instance, algorithm, heuristic, (x_s, y_s), (x_g, y_g))
         
-        #end_time = time.time()
+        end_time = time.time()
         
-        #create_image(grid, solution.info["nodes_generated"], solution.info["nodes_expanded"], solution)
+        image = create_image(grid, solution.info["nodes_generated"], solution.info["nodes_expanded"], solution)
         
         print(solution[0])
         print(solution[-1])
         print()
+        print("time elapsed: %gs" % (end_time - start_time))
+        print()
         print(solution)
+        
+        window = tk.Tk()
+        img = ImageTk.PhotoImage(image)
+        lbl = tk.Label(window, image = img).pack()
+        window.mainloop()
     except InvalidGoalError:
         print("<%d, %d, %g>" % (x_s, y_s, 0))
         print("<%d, %d, %g>" % (x_g, y_g, float("inf")))
